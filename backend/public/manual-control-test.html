@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiểm thử điều khiển thủ công ESP32</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2937; background: #f3f4f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 32px 16px; }
+    .container { width: min(760px, 100%); margin: 0 auto; }
+    .card { background: #fff; border: 1px solid #d1d5db; border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+    h1 { margin: 0 0 20px; font-size: 24px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .status-item { padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; }
+    .label { display: block; font-size: 13px; color: #6b7280; margin-bottom: 4px; }
+    .value { font-weight: 700; font-size: 17px; }
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .control-group { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+    .buttons { display: flex; gap: 8px; margin-top: 10px; }
+    button { border: 1px solid #9ca3af; border-radius: 7px; background: #fff; padding: 9px 14px; cursor: pointer; font-weight: 600; }
+    button:hover:not(:disabled) { background: #f3f4f6; }
+    button:disabled { cursor: not-allowed; opacity: .5; }
+    .log { margin: 0; padding: 12px; min-height: 120px; white-space: pre-wrap; word-break: break-word; background: #111827; color: #f9fafb; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; }
+    .meta { margin-top: 10px; color: #6b7280; font-size: 13px; }
+    @media (max-width: 600px) { .controls { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Kiểm thử điều khiển thủ công ESP32</h1>
+
+    <section class="card">
+      <h2>Trạng thái thiết bị</h2>
+      <div class="status-grid">
+        <div class="status-item"><span class="label">Thiết bị</span><span id="onlineState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">Chế độ</span><span id="modeState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">Quạt</span><span id="fanState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">Còi</span><span id="buzzerState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">WiFi SSID</span><span id="wifiSsidState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">Địa chỉ IP</span><span id="ipAddressState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">WiFi RSSI</span><span id="wifiRssiState" class="value">Chưa xác định</span></div>
+        <div class="status-item"><span class="label">Thời gian hoạt động</span><span id="uptimeState" class="value">Chưa xác định</span></div>
+      </div>
+      <div class="meta">Cập nhật trạng thái gần nhất: <span id="lastStatusTime">Chưa có</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Điều khiển thủ công</h2>
+      <div class="controls">
+        <div class="control-group">
+          <strong>Quạt</strong>
+          <div class="buttons"><button id="fanOnButton" type="button">ON</button><button id="fanOffButton" type="button">OFF</button></div>
+        </div>
+        <div class="control-group">
+          <strong>Còi</strong>
+          <div class="buttons"><button id="buzzerOnButton" type="button">ON</button><button id="buzzerOffButton" type="button">OFF</button></div>
+        </div>
+      </div>
+      <div class="buttons" style="margin-top:16px"><button id="refreshButton" type="button">Làm mới trạng thái</button></div>
+      <div class="meta">API gốc: <span id="apiBaseUrl"></span></div>
+      <div class="meta">commandId gần nhất: <span id="lastCommandId">Chưa có</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Phản hồi API / lỗi gần nhất</h2>
+      <pre id="apiLog" class="log">Đang chờ...</pre>
+    </section>
+  </main>
+
+  <script>
+    const POLL_INTERVAL_MS = 2000;
+    const DEFAULT_BACKEND_PORT = "3000";
+
+    function resolveApiBaseUrl() {
+      const configuredBase = new URLSearchParams(window.location.search).get("apiBase");
+      if (configuredBase) return configuredBase.replace(/\/$/, "");
+      if (window.location.protocol === "file:") return "http://localhost:3000";
+
+      const isLocalHost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      if (isLocalHost && window.location.port !== DEFAULT_BACKEND_PORT) {
+        return `${window.location.protocol}//${window.location.hostname}:${DEFAULT_BACKEND_PORT}`;
+      }
+      return "";
+    }
+
+    const API_BASE_URL = resolveApiBaseUrl();
+    const apiUrl = (path) => `${API_BASE_URL}${path}`;
+    const state = { fanOn: null, buzzerOn: null, commandInFlight: false };
+    const elements = {
+      onlineState: document.getElementById("onlineState"),
+      modeState: document.getElementById("modeState"),
+      fanState: document.getElementById("fanState"),
+      buzzerState: document.getElementById("buzzerState"),
+      wifiSsidState: document.getElementById("wifiSsidState"),
+      ipAddressState: document.getElementById("ipAddressState"),
+      wifiRssiState: document.getElementById("wifiRssiState"),
+      uptimeState: document.getElementById("uptimeState"),
+      apiBaseUrl: document.getElementById("apiBaseUrl"),
+      lastStatusTime: document.getElementById("lastStatusTime"),
+      lastCommandId: document.getElementById("lastCommandId"),
+      apiLog: document.getElementById("apiLog"),
+      refreshButton: document.getElementById("refreshButton"),
+      fanOnButton: document.getElementById("fanOnButton"),
+      fanOffButton: document.getElementById("fanOffButton"),
+      buzzerOnButton: document.getElementById("buzzerOnButton"),
+      buzzerOffButton: document.getElementById("buzzerOffButton")
+    };
+
+    function formatBooleanState(value) {
+      if (value === true) return "ON";
+      if (value === false) return "OFF";
+      return "Chưa xác định";
+    }
+
+    function formatUptime(uptimeMs) {
+      if (!Number.isSafeInteger(uptimeMs) || uptimeMs < 0) return "Chưa xác định";
+      const totalMinutes = Math.floor(uptimeMs / 60000);
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+      return `${days} ngày ${hours} giờ ${minutes} phút`;
+    }
+
+    function writeLog(label, payload) {
+      const timestamp = new Date().toLocaleTimeString();
+      const body = typeof payload === "string" ? payload : JSON.stringify(payload, null, 2);
+      elements.apiLog.textContent = `[${timestamp}] ${label}
+${body}`;
+    }
+
+    function setControlDisabled(disabled) {
+      elements.fanOnButton.disabled = disabled;
+      elements.fanOffButton.disabled = disabled;
+      elements.buzzerOnButton.disabled = disabled;
+      elements.buzzerOffButton.disabled = disabled;
+    }
+
+    function normalizeStatusPayload(payload) {
+      if (payload && typeof payload === "object" && payload.data && typeof payload.data === "object") return payload.data;
+      return payload;
+    }
+
+    async function refreshStatus({ logSuccess = false } = {}) {
+      try {
+        const response = await fetch(apiUrl("/api/status"), { method: "GET", headers: { "Accept": "application/json" }, cache: "no-store" });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(`GET /api/status thất bại: HTTP ${response.status} ${JSON.stringify(payload)}`);
+
+        const status = normalizeStatusPayload(payload);
+        if (!status || typeof status !== "object") throw new Error("GET /api/status trả về trạng thái không hợp lệ.");
+
+        if (typeof status.fanOn === "boolean") state.fanOn = status.fanOn;
+        if (typeof status.buzzerOn === "boolean") state.buzzerOn = status.buzzerOn;
+
+        elements.onlineState.textContent = status.online === true ? "TRỰC TUYẾN" : status.online === false ? "NGOẠI TUYẾN" : "Chưa xác định";
+        elements.modeState.textContent = typeof status.mode === "string" ? status.mode : "Chưa xác định";
+        elements.fanState.textContent = formatBooleanState(state.fanOn);
+        elements.buzzerState.textContent = formatBooleanState(state.buzzerOn);
+        elements.wifiSsidState.textContent = typeof status.wifiSsid === "string" && status.wifiSsid.length > 0 ? status.wifiSsid : "Chưa xác định";
+        elements.ipAddressState.textContent = typeof status.ipAddress === "string" && status.ipAddress.length > 0 ? status.ipAddress : "Chưa xác định";
+        elements.wifiRssiState.textContent = Number.isFinite(status.wifiRssiDbm) ? `${status.wifiRssiDbm} dBm` : "Chưa xác định";
+        elements.uptimeState.textContent = formatUptime(status.uptimeMs);
+        elements.lastStatusTime.textContent = Number.isFinite(status.lastSeenAtMs)
+          ? new Date(status.lastSeenAtMs).toLocaleString()
+          : new Date().toLocaleString();
+
+        if (logSuccess) writeLog("GET /api/status", payload);
+        return status;
+      } catch (error) {
+        elements.onlineState.textContent = "Không khả dụng";
+        writeLog("Lỗi trạng thái", error instanceof Error ? error.message : String(error));
+        throw error;
+      }
+    }
+
+    async function sendControl(target, nextFanOn, nextBuzzerOn) {
+      if (state.commandInFlight) return;
+      if (typeof nextFanOn !== "boolean" || typeof nextBuzzerOn !== "boolean") {
+        writeLog("Đã chặn điều khiển", "Chưa xác định trạng thái cơ cấu chấp hành. Hãy làm mới trạng thái thành công trước khi gửi lệnh.");
+        return;
+      }
+
+      state.commandInFlight = true;
+      setControlDisabled(true);
+      try {
+        const requestBody = { target, fanOn: nextFanOn, buzzerOn: nextBuzzerOn };
+        const response = await fetch(apiUrl("/api/control"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(requestBody)
+        });
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(`POST /api/control thất bại: HTTP ${response.status} ${JSON.stringify(payload)}`);
+        if (payload && typeof payload.commandId === "string") elements.lastCommandId.textContent = payload.commandId;
+        writeLog("POST /api/control — đã gửi lệnh; đang chờ thiết bị xác nhận trạng thái", payload ?? { httpStatus: response.status });
+      } catch (error) {
+        writeLog("Lỗi điều khiển", error instanceof Error ? error.message : String(error));
+      } finally {
+        state.commandInFlight = false;
+        setControlDisabled(false);
+      }
+    }
+
+    elements.fanOnButton.addEventListener("click", () => sendControl("FAN", true, state.buzzerOn));
+    elements.fanOffButton.addEventListener("click", () => sendControl("FAN", false, state.buzzerOn));
+    elements.buzzerOnButton.addEventListener("click", () => sendControl("BUZZER", state.fanOn, true));
+    elements.buzzerOffButton.addEventListener("click", () => sendControl("BUZZER", state.fanOn, false));
+    elements.refreshButton.addEventListener("click", () => refreshStatus({ logSuccess: true }).catch(() => {}));
+
+    async function initialize() {
+      elements.apiBaseUrl.textContent = API_BASE_URL || window.location.origin;
+      setControlDisabled(true);
+      try { await refreshStatus({ logSuccess: true }); } catch (_) {} finally { setControlDisabled(false); }
+      window.setInterval(() => { refreshStatus().catch(() => {}); }, POLL_INTERVAL_MS);
+    }
+
+    initialize();
+  </script>
+</body>
+</html>

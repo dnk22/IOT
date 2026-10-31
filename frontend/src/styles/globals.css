@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  font-family: Geist, ui-sans-serif, system-ui, sans-serif;
+  background: #0b1326;
+  color: #dae2fd;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: #0b1326;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(76, 215, 246, 0.045), transparent 32rem),
+    #0b1326;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  width: 1em;
+  flex: 0 0 auto;
+  overflow: hidden;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  -webkit-font-smoothing: antialiased;
+  visibility: hidden;
+}
+
+.material-symbols-ready .material-symbols-outlined {
+  visibility: visible;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-panel border border-white/[0.07] bg-surface-low shadow-panel;
+  }
+
+  .metric-card {
+    @apply min-h-[118px] rounded-panel border border-white/[0.06] bg-surface-low p-3 shadow-panel transition-colors hover:border-outline-variant/60;
+  }
+
+  .metric-heading {
+    @apply flex items-center gap-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.1em] text-on-surface-variant;
+  }
+
+  .metric-value {
+    @apply font-mono text-[28px] font-semibold leading-none tracking-[-0.04em] text-on-surface;
+  }
+
+  .metric-unit {
+    @apply font-mono text-[10px] font-medium uppercase text-on-surface-variant;
+  }
+
+  .metric-footer {
+    @apply mt-4 flex flex-wrap items-center justify-between gap-2 font-mono text-[9px] font-medium tracking-wide;
+  }
+
+  .section-title-row {
+    @apply flex items-center gap-2;
+  }
+
+  .section-title {
+    @apply text-sm font-semibold tracking-tight text-on-surface;
+  }
+
+  .control-button {
+    @apply flex min-h-9 items-center justify-center gap-1.5 rounded px-2 py-2 font-mono text-[10px] font-semibold uppercase transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary;
+  }
+
+  .chart-card {
+    @apply min-w-0 overflow-hidden rounded-panel border border-white/[0.07] bg-surface-container p-3;
+  }
+
+  .chart-header {
+    @apply mb-1 flex min-h-12 items-start justify-between gap-2;
+  }
+
+  .chart-title {
+    @apply flex items-center gap-1.5 text-xs font-medium text-on-surface;
+  }
+
+  .chart-dot {
+    @apply inline-block h-2 w-2 rounded-full shadow;
+  }
+
+  .chart-stats {
+    @apply mt-1.5 font-mono text-[9px] leading-4 text-outline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #060e20;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #3d494c;
+}

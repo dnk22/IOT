@@ -1,0 +1,38 @@
+# PlatformIO generated files
+firmware/.pio/
+firmware/.vscode/
+
+# Local credentials
+firmware/include/Secrets.h
+
+# Node dependencies, build output, and local environment
+backend/node_modules/
+backend/dist/
+backend/.env
+web/node_modules/
+web/dist/
+web/.env
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+*.tsbuildinfo
+
+# SQLite runtime files
+database/*.db
+database/*.db-shm
+database/*.db-wal
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE and editor files
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp

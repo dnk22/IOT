@@ -1,0 +1,30 @@
+{
+  "name": "iot-smart-room-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx scripts/resetTelemetry.ts && tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/backend/src/index.js",
+    "typecheck": "tsc --noEmit",
+    "verify": "tsc && node dist/backend/scripts/smoke.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "mqtt": "^5.16.0",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
