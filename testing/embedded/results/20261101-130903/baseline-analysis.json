@@ -1,0 +1,29 @@
+{
+  "runId": "baseline-unmodified",
+  "gitSha": "40ff4f3306d6898572dff628bec9edc196df5504",
+  "source": "HARDWARE",
+  "condition": "stable_wifi_mqtt_unmodified",
+  "sampleCount": 120,
+  "sampleIntervalMs": {
+    "n": 119,
+    "min": 2000.0,
+    "mean": 2000.0168067226891,
+    "median": 2000.0,
+    "p95": 2000.0,
+    "max": 2001.0,
+    "stddev": 0.12854671042670887
+  },
+  "intervalOutliersOver100Ms": 0,
+  "sampleTimerRegressionCount": 0,
+  "dhtErrorCount": 0,
+  "mqttPublishSuccessCount": 119,
+  "mqttPublishFailureCount": 0,
+  "fatalErrorCount": 0,
+  "perfUptimeMs": {
+    "first": null,
+    "last": null,
+    "span": null
+  },
+  "perfMetricSummary": {},
+  "perfRecords": []
+}

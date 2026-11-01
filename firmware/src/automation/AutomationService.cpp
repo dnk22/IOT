@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "actuators/ActuatorService.h"
+#include "perf/PerfMetrics.h"
 
 namespace {
 
@@ -264,6 +265,9 @@ bool AutomationService::evaluate(const SensorReading& reading,
       continue;
     }
     if (conditionMatches(rule, reading)) {
+      if (state.state == RuntimeState::Releasing) {
+        PerfMetrics::recordReleaseCancelled(index, nowMs - state.falseSinceMs);
+      }
       runtimeChanged = runtimeChanged || state.state != RuntimeState::Active;
       state.state = RuntimeState::Active;
       state.falseSinceMs = 0;
@@ -278,9 +282,11 @@ bool AutomationService::evaluate(const SensorReading& reading,
     if (state.state == RuntimeState::Active) {
       state.state = RuntimeState::Releasing;
       state.falseSinceMs = nowMs;
+      PerfMetrics::recordReleaseStart(index, nowMs);
       runtimeChanged = true;
     } else if (nowMs - state.falseSinceMs >=
                AppConfig::AUTOMATION_RELEASE_DELAY_MS) {
+      PerfMetrics::recordReleaseComplete(index, nowMs - state.falseSinceMs);
       state.state = RuntimeState::Inactive;
       state.falseSinceMs = 0;
       runtimeChanged = true;
@@ -426,6 +432,7 @@ const char* AutomationService::buzzerActiveRuleId() const {
 bool AutomationService::automationEnabled() const { return automationEnabled_; }
 bool AutomationService::fanManualOverride() const { return fanManualOverride_; }
 bool AutomationService::buzzerManualOverride() const { return buzzerManualOverride_; }
+std::uint8_t AutomationService::ruleCount() const { return ruleCount_; }
 
 const char* AutomationService::runtimeStateName(RuntimeState state) {
   switch (state) {

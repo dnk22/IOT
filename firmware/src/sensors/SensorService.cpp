@@ -6,6 +6,7 @@
 
 #include "AppConfig.h"
 #include "Pins.h"
+#include "perf/PerfMetrics.h"
 
 SensorService::SensorService() : dht_(Pins::DHT22_DATA, DHT22) {
 }
@@ -20,8 +21,10 @@ SensorReading SensorService::read() {
   SensorReading reading;
   reading.sampledAtMs = millis();
 
+  const std::uint32_t dhtStartedAtUs = micros();
   const float temperatureC = dht_.readTemperature();
   const float humidityPct = dht_.readHumidity();
+  const std::uint32_t dhtDurationUs = micros() - dhtStartedAtUs;
 
   if (!std::isnan(temperatureC) && !std::isnan(humidityPct)) {
     reading.temperatureC = temperatureC;
@@ -32,7 +35,10 @@ SensorReading SensorService::read() {
     reading.humidityPct = std::numeric_limits<float>::quiet_NaN();
   }
 
+  const std::uint32_t ldrStartedAtUs = micros();
   reading.lightRaw = static_cast<std::uint16_t>(analogRead(Pins::LDR_ANALOG));
+  const std::uint32_t ldrDurationUs = micros() - ldrStartedAtUs;
+  PerfMetrics::setSensorParts(dhtDurationUs, ldrDurationUs);
 
   // Uncalibrated normalized ADC percentage; direction depends on the LDR module.
   const float adcRange = AppConfig::LDR_ADC_MAX - AppConfig::LDR_ADC_MIN;

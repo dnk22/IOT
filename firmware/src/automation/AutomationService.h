@@ -58,6 +58,7 @@ class AutomationService {
   bool automationEnabled() const;
   bool fanManualOverride() const;
   bool buzzerManualOverride() const;
+  std::uint8_t ruleCount() const;
   void appendRuleStates(JsonArray target) const;
 
  private:

@@ -4,6 +4,7 @@
 
 #include "AppConfig.h"
 #include "Pins.h"
+#include "perf/PerfMetrics.h"
 
 namespace {
 
@@ -64,4 +65,5 @@ bool ActuatorService::isBuzzerOn() const {
 
 void ActuatorService::writeRelay(std::uint8_t pin, bool on) {
   digitalWrite(pin, relayLevel(on));
+  PerfMetrics::recordGpioWrite(pin, on);
 }

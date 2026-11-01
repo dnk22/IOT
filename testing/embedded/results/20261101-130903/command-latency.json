@@ -1,0 +1,12 @@
+{
+  "at": "2026-11-01T06:27:14.512Z",
+  "source": "HARDWARE",
+  "condition": "NO_CHANGE outputs already OFF",
+  "httpStatus": 202,
+  "ackSuccess": true,
+  "requestToHttp202Ms": 3.4638750000000016,
+  "requestToCommandAckMs": 527.326375,
+  "requestToReportedStatusMs": 554.51275,
+  "restored": true,
+  "status": "PASS"
+}

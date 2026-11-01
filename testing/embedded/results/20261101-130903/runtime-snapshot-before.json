@@ -1,0 +1,314 @@
+{
+  "capturedAt": "2026-11-01T06:10:02.200Z",
+  "databasePath": "[REDACTED_LOCAL_PATH]",
+  "backupFile": "database-before.sqlite",
+  "tableCounts": {
+    "sensor_readings": 85,
+    "device_status": 1,
+    "automation_config": 1,
+    "automation_rules": 0
+  },
+  "api": {
+    "/api/health": {
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    "/api/status": {
+      "status": 200,
+      "body": {
+        "deviceId": "esp32_01",
+        "online": true,
+        "presence": "ONLINE",
+        "mqttConnected": true,
+        "wifiSsid": "[REDACTED]",
+        "ipAddress": "[REDACTED]",
+        "wifiRssiDbm": -35,
+        "uptimeMs": 260001,
+        "firmwareVersion": "0.5.0",
+        "fanOn": false,
+        "buzzerOn": false,
+        "fanSource": "MANUAL_OVERRIDE",
+        "buzzerSource": "MANUAL_OVERRIDE",
+        "fanActiveRuleId": null,
+        "buzzerActiveRuleId": null,
+        "automationConfigVersion": 28,
+        "automationEnabled": true,
+        "fanManualOverride": true,
+        "buzzerManualOverride": true,
+        "ruleStates": [],
+        "lastSeenAtMs": 1793513401281
+      }
+    },
+    "/api/telemetry/latest": {
+      "status": 200,
+      "body": {
+        "temperatureC": 28.1,
+        "humidityPct": 46.3,
+        "lightRaw": 2525,
+        "temperatureEma": 28.099999410153526,
+        "humidityEma": 46.11873047873036,
+        "lightEma": 2547.8679742942513,
+        "dhtValid": true,
+        "uptimeMs": 265928,
+        "receivedAtMs": 1793513401279
+      }
+    },
+    "/api/telemetry/recent?limit=10": {
+      "status": 200,
+      "body": {
+        "items": [
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 45.8,
+            "lightRaw": 2587,
+            "temperatureEma": 28.099995605301242,
+            "humidityEma": 45.87967363842101,
+            "lightEma": 2578.9954387415246,
+            "dhtValid": true,
+            "uptimeMs": 247928,
+            "receivedAtMs": 1793513383284
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 45.8,
+            "lightRaw": 2557,
+            "temperatureEma": 28.099996484240997,
+            "humidityEma": 45.863738910736814,
+            "lightEma": 2574.59635099322,
+            "dhtValid": true,
+            "uptimeMs": 249928,
+            "receivedAtMs": 1793513385282
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 45.9,
+            "lightRaw": 2579,
+            "temperatureEma": 28.0999971873928,
+            "humidityEma": 45.87099112858945,
+            "lightEma": 2575.477080794576,
+            "dhtValid": true,
+            "uptimeMs": 251928,
+            "receivedAtMs": 1793513387315
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46,
+            "lightRaw": 2559,
+            "temperatureEma": 28.09999774991424,
+            "humidityEma": 45.89679290287157,
+            "lightEma": 2572.181664635661,
+            "dhtValid": true,
+            "uptimeMs": 253928,
+            "receivedAtMs": 1793513389292
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.1,
+            "lightRaw": 2539,
+            "temperatureEma": 28.099998199931395,
+            "humidityEma": 45.93743432229726,
+            "lightEma": 2565.545331708529,
+            "dhtValid": true,
+            "uptimeMs": 255928,
+            "receivedAtMs": 1793513391279
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.1,
+            "lightRaw": 2559,
+            "temperatureEma": 28.099998559945117,
+            "humidityEma": 45.969947457837804,
+            "lightEma": 2564.2362653668233,
+            "dhtValid": true,
+            "uptimeMs": 257928,
+            "receivedAtMs": 1793513393283
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.1,
+            "lightRaw": 2542,
+            "temperatureEma": 28.099998847956098,
+            "humidityEma": 45.99595796627025,
+            "lightEma": 2559.7890122934587,
+            "dhtValid": true,
+            "uptimeMs": 259928,
+            "receivedAtMs": 1793513395281
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.1,
+            "lightRaw": 2542,
+            "temperatureEma": 28.09999907836488,
+            "humidityEma": 46.016766373016196,
+            "lightEma": 2556.231209834767,
+            "dhtValid": true,
+            "uptimeMs": 261928,
+            "receivedAtMs": 1793513397279
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.3,
+            "lightRaw": 2543,
+            "temperatureEma": 28.099999262691906,
+            "humidityEma": 46.073413098412956,
+            "lightEma": 2553.5849678678137,
+            "dhtValid": true,
+            "uptimeMs": 263928,
+            "receivedAtMs": 1793513399282
+          },
+          {
+            "temperatureC": 28.1,
+            "humidityPct": 46.3,
+            "lightRaw": 2525,
+            "temperatureEma": 28.099999410153526,
+            "humidityEma": 46.11873047873036,
+            "lightEma": 2547.8679742942513,
+            "dhtValid": true,
+            "uptimeMs": 265928,
+            "receivedAtMs": 1793513401279
+          }
+        ]
+      }
+    },
+    "/api/automation": {
+      "status": 200,
+      "body": {
+        "deviceId": "esp32_01",
+        "enabled": true,
+        "configVersion": 28,
+        "appliedVersion": 28,
+        "syncState": "SYNCED",
+        "syncError": null,
+        "updatedAtMs": 1793513233162,
+        "capabilities": {
+          "sensors": [
+            {
+              "value": "TEMPERATURE",
+              "label": "Nhiệt độ",
+              "unit": "°C",
+              "inputType": "number",
+              "step": 0.1,
+              "min": -40,
+              "max": 80
+            },
+            {
+              "value": "HUMIDITY",
+              "label": "Độ ẩm",
+              "unit": "%",
+              "inputType": "number",
+              "step": 0.1,
+              "min": 0,
+              "max": 100
+            },
+            {
+              "value": "LIGHT",
+              "label": "Ánh sáng",
+              "unit": "ADC",
+              "inputType": "number",
+              "step": 1,
+              "min": 0,
+              "max": 4095
+            }
+          ],
+          "operators": [
+            ">",
+            ">=",
+            "<",
+            "<="
+          ],
+          "actuators": [
+            {
+              "value": "FAN",
+              "label": "Quạt",
+              "relayChannel": 1,
+              "gpio": 25,
+              "actions": [
+                "ON",
+                "OFF"
+              ]
+            },
+            {
+              "value": "BUZZER",
+              "label": "Còi",
+              "relayChannel": 2,
+              "gpio": 26,
+              "actions": [
+                "ON",
+                "OFF"
+              ]
+            }
+          ],
+          "releaseConfirmMs": 5000,
+          "maxRules": 16
+        },
+        "rules": []
+      }
+    },
+    "/api/automation/capabilities": {
+      "status": 200,
+      "body": {
+        "sensors": [
+          {
+            "value": "TEMPERATURE",
+            "label": "Nhiệt độ",
+            "unit": "°C",
+            "inputType": "number",
+            "step": 0.1,
+            "min": -40,
+            "max": 80
+          },
+          {
+            "value": "HUMIDITY",
+            "label": "Độ ẩm",
+            "unit": "%",
+            "inputType": "number",
+            "step": 0.1,
+            "min": 0,
+            "max": 100
+          },
+          {
+            "value": "LIGHT",
+            "label": "Ánh sáng",
+            "unit": "ADC",
+            "inputType": "number",
+            "step": 1,
+            "min": 0,
+            "max": 4095
+          }
+        ],
+        "operators": [
+          ">",
+          ">=",
+          "<",
+          "<="
+        ],
+        "actuators": [
+          {
+            "value": "FAN",
+            "label": "Quạt",
+            "relayChannel": 1,
+            "gpio": 25,
+            "actions": [
+              "ON",
+              "OFF"
+            ]
+          },
+          {
+            "value": "BUZZER",
+            "label": "Còi",
+            "relayChannel": 2,
+            "gpio": 26,
+            "actions": [
+              "ON",
+              "OFF"
+            ]
+          }
+        ],
+        "releaseConfirmMs": 5000,
+        "maxRules": 16
+      }
+    }
+  }
+}

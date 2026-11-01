@@ -7,6 +7,7 @@
 #include "models/Models.h"
 #include "mqtt/MqttService.h"
 #include "network/WifiService.h"
+#include "perf/PerfMetrics.h"
 #include "sensors/SensorService.h"
 
 namespace {
@@ -96,6 +97,7 @@ void printReading(const SensorReading& reading) {
 
 void setup() {
   Serial.begin(AppConfig::SERIAL_BAUD_RATE);
+  PerfMetrics::begin();
   if (AppConfig::ENABLE_ACTUATORS) {
     actuatorService.begin();
   }
@@ -113,6 +115,7 @@ void setup() {
 }
 
 void loop() {
+  const std::uint32_t loopStartedAtUs = micros();
   wifiService.loop();
   const bool wifiConnected = wifiService.isConnected();
   updateMqttDisplayPolicy(millis(), wifiConnected,
@@ -125,13 +128,23 @@ void loop() {
 
   if (nowMs - lastSampleAtMs >= AppConfig::SENSOR_SAMPLE_INTERVAL_MS) {
     lastSampleAtMs = nowMs;
+    const std::uint32_t sensorStartedAtUs = micros();
     latestReading = sensorService.read();
+    const std::uint32_t sensorDurationUs = micros() - sensorStartedAtUs;
     printReading(latestReading);
+    PerfMetrics::recordSensor(latestReading.sampledAtMs, sensorDurationUs);
     if (mqttConnected) {
       mqttService.publishTelemetry(latestReading);
     }
-    if (automationService.evaluate(latestReading, nowMs) &&
-        mqttConnected) {
+    const std::uint32_t automationStartedAtUs = micros();
+    const bool automationChanged =
+        automationService.evaluate(latestReading, nowMs);
+    const std::uint32_t automationDurationUs =
+        micros() - automationStartedAtUs;
+    PerfMetrics::recordAutomation(automationDurationUs,
+                                  automationService.ruleCount(),
+                                  automationChanged);
+    if (automationChanged && mqttConnected) {
       mqttService.publishStatus();
       lastStatusPublishAtMs = nowMs;
     }
@@ -149,4 +162,9 @@ void loop() {
     lastStatusPublishAtMs = nowMs;
     mqttService.publishStatus();
   }
+
+  PerfMetrics::tick(nowMs, wifiConnected, mqttConnected,
+                    automationService.ruleCount(), actuatorService.isFanOn(),
+                    actuatorService.isBuzzerOn());
+  PerfMetrics::recordLoop(micros() - loopStartedAtUs);
 }

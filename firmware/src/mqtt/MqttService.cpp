@@ -11,6 +11,7 @@
 #include "automation/AutomationService.h"
 #include "mqtt/MqttTopics.h"
 #include "network/WifiService.h"
+#include "perf/PerfMetrics.h"
 
 namespace {
 
@@ -144,7 +145,10 @@ bool MqttService::publishTelemetry(const SensorReading& reading) {
   }
 
   const String topic = MqttTopics::telemetryTopic(AppConfig::DEVICE_ID);
+  const std::uint32_t publishStartedAtUs = micros();
   const bool published = mqttClient_.publish(topic.c_str(), payload, false);
+  PerfMetrics::recordMqttPublish("telemetry_publish_call",
+                                 micros() - publishStartedAtUs, published);
   Serial.println(published ? F("[MQTT] Telemetry published.")
                            : F("[MQTT] Telemetry publish failed."));
   return published;
@@ -196,7 +200,10 @@ bool MqttService::publishStatus() {
   }
 
   const String topic = MqttTopics::statusTopic(AppConfig::DEVICE_ID);
+  const std::uint32_t publishStartedAtUs = micros();
   const bool published = mqttClient_.publish(topic.c_str(), payload, false);
+  PerfMetrics::recordMqttPublish("status_publish_call",
+                                 micros() - publishStartedAtUs, published);
   Serial.println(published ? F("[MQTT] Status published.")
                            : F("[MQTT] Status publish failed."));
   return published;
@@ -286,6 +293,9 @@ void MqttService::handleMessage(char* topic, std::uint8_t* payload,
 }
 
 void MqttService::handleCommand(std::uint8_t* payload, unsigned int length) {
+  const std::uint32_t commandStartedAtUs = micros();
+  const bool fanWasOn = actuatorService_.isFanOn();
+  const bool buzzerWasOn = actuatorService_.isBuzzerOn();
   JsonDocument document;
   const DeserializationError jsonError =
       deserializeJson(document, payload, length);
@@ -354,6 +364,11 @@ void MqttService::handleCommand(std::uint8_t* payload, unsigned int length) {
     rejectCommand("INVALID_MODE", commandId);
     return;
   }
+
+  PerfMetrics::recordManualCommand(
+      micros() - commandStartedAtUs,
+      fanWasOn != actuatorService_.isFanOn() ||
+          buzzerWasOn != actuatorService_.isBuzzerOn());
 
   Serial.print(F("[MQTT] Manual command applied: "));
   Serial.println(commandId);

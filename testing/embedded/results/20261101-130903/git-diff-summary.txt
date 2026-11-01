@@ -1,0 +1,18 @@
+HEAD before test: 40ff4f3306d6898572dff628bec9edc196df5504
+Branch: main
+Initial tracked status: clean
+Initial untracked file: Codex_ESP32_Embedded_Full_Test_Prompt.md
+
+Tracked instrumentation changes:
+ firmware/platformio.ini                       |  9 +++++++++
+ firmware/src/actuators/ActuatorService.cpp    |  2 ++
+ firmware/src/automation/AutomationService.cpp |  7 +++++++
+ firmware/src/automation/AutomationService.h   |  1 +
+ firmware/src/main.cpp                         | 22 ++++++++++++++++++++--
+ firmware/src/mqtt/MqttService.cpp             | 15 +++++++++++++++
+ firmware/src/sensors/SensorService.cpp        |  6 ++++++
+ 7 files changed, 60 insertions(+), 2 deletions(-)
+
+New untracked directories: firmware/src/perf/, testing/embedded/.
+git diff --check: PASS (no whitespace errors).
+No pre-existing tracked user edit was overwritten.
