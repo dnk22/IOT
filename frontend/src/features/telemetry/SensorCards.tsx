@@ -1,7 +1,6 @@
 import type { DeviceStatus } from '../../types/device';
 import type { TelemetryReading } from '../../types/telemetry';
 import { BuzzerStatusCard } from '../device/BuzzerStatusCard';
-import { DeviceCard } from '../device/DeviceCard';
 import { FanStatusCard } from '../device/FanStatusCard';
 import { HumidityCard } from './HumidityCard';
 import { LightCard } from './LightCard';
@@ -11,9 +10,15 @@ interface SensorCardsProps {
   telemetry: TelemetryReading | null;
   device: DeviceStatus | null;
   telemetryError: string | null;
+  controlsVisible: boolean;
 }
 
-export function SensorCards({ telemetry, device, telemetryError }: SensorCardsProps) {
+export function SensorCards({
+  telemetry,
+  device,
+  telemetryError,
+  controlsVisible,
+}: SensorCardsProps) {
   return (
     <section aria-label="Trạng thái thời gian thực">
       {telemetryError && (
@@ -30,9 +35,8 @@ export function SensorCards({ telemetry, device, telemetryError }: SensorCardsPr
         />
         <HumidityCard value={telemetry?.humidityPct ?? null} ema={telemetry?.humidityEma ?? null} valid={telemetry?.dhtValid ?? false} />
         <LightCard value={telemetry?.lightRaw ?? null} ema={telemetry?.lightEma ?? null} />
-        <FanStatusCard enabled={device?.fanOn ?? null} />
-        <BuzzerStatusCard enabled={device?.buzzerOn ?? null} />
-        <DeviceCard device={device} />
+        {controlsVisible && <FanStatusCard enabled={device?.fanOn ?? null} />}
+        {controlsVisible && <BuzzerStatusCard enabled={device?.buzzerOn ?? null} />}
       </div>
     </section>
   );
